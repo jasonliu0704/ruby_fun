@@ -4,6 +4,11 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
   # test "the truth" do
   #   assert true
   # end
+
+  def setup
+    @user = users(:michael)
+  end
+
   test "invalid signup information" do
   	get signup_path
   	assert_no_difference 'User.count' do
@@ -13,6 +18,8 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
   								password_confirmation: "b"}
   	end
   	assert_template 'users/new'
+    assert_select 'div#error_explanation'
+    assert_select 'div.field_with_errors'
   end
 
   test "valid signup information" do
@@ -24,5 +31,26 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
                                             password_confirmation: "password" }
     end
     assert_template 'users/show'
+    assert_not flash.empty?
+    assert is_logged_in?
+  end
+
+  test "login with valid information followed by logout" do
+    get login_path
+    post login_path, session: { email: @user.email, password: 'password' }
+    assert is_logged_in?
+    assert_redirected_to @user
+    follow_redirect!
+    assert_template 'users/show'
+    assert_select "a[href=?]", login_path, count: 0
+    assert_select "a[href=?]", logout_path
+    assert_select "a[href=?]", user_path(@user)
+    delete logout_path
+    assert_not is_logged_in?
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_select "a[href=?]", login_path
+    assert_select "a[href=?]", logout_path,      count: 0
+    assert_select "a[href=?]", user_path(@user), count: 0
   end
 end
