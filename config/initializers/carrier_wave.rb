@@ -3,9 +3,9 @@ if Rails.env.production?
     config.fog_credentials = {
       # Configuration for Amazon S3
       :provider              => 'AWS',
-      :aws_access_key_id     => ENV['AKIAIACO4WDORFZSY7EA'],
-      :aws_secret_access_key => ENV['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']
+      :aws_access_key_id     => ENV['S3_ACCESS_KEY'],
+      :aws_secret_access_key => ENV['S3_SECRET_KEY']
     }
-    config.fog_directory     =  ENV['twitter-clone']
+    config.fog_directory     =  ENV['S3_BUCKET']
   end
 end
